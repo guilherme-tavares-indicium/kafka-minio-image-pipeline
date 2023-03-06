@@ -1,0 +1,23 @@
+FROM python:3.9-slim-buster
+
+WORKDIR /app
+
+# Install Java and Kafka
+RUN apt-get update && apt-get install -y default-jre wget && \
+    wget https://downloads.apache.org/kafka/2.8.2/kafka_2.13-2.8.2.tgz && \
+    tar -xzf kafka_2.13-2.8.2.tgz && \
+    mv kafka_2.13-2.8.2 /usr/local/kafka && \
+    rm kafka_2.13-2.8.2.tgz && \
+    apt-get remove -y wget && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+
+RUN apt-get update && \
+    apt-get install -y netcat && \
+    pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["sh", "entrypoint.sh"]
