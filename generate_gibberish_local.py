@@ -1,4 +1,5 @@
 import os
+import io
 import random
 import string
 from minio import Minio
@@ -24,24 +25,19 @@ if not minio_client.bucket_exists(minio_bucket_name):
 # while True:
 for some_file in range(30):
     # Generate a random filename
-    filename = ''.join(random.choices(string.ascii_lowercase, k=10)) + '.txt'
-    filepath = os.path.join('data', filename)
+    filename = ''.join(random.choices(string.ascii_lowercase, k=10))
 
     # Generate some random content for the file
     content = ''.join(random.choices(string.ascii_lowercase + ' ', k=100))
+    content_as_bytes = content.encode('utf-8')
+    content_as_a_stream = io.BytesIO(content_as_bytes)
 
-    # Write the content to the file
-    with open(filepath, 'w') as f:
-        f.write(content)
-
-    print(f'Created file {filename}')
-
-    # put the file in the minio bucket
     try:
-        minio_client.fput_object(
+        minio_client.put_object(
             "my-bucket",
             filename,
-            filepath
+            content_as_a_stream,
+            length=len(content_as_bytes)
         )
         print(f"Created file {filename} with content:\n{content}")
     except InvalidResponseError as err:
@@ -49,4 +45,3 @@ for some_file in range(30):
 
     # Sleep for 5 seconds before creating the next file
     # time.sleep(5)
-    

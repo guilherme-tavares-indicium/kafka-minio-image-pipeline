@@ -15,8 +15,9 @@ RUN apt-get update && apt-get install -y default-jre wget && \
 COPY requirements.txt .
 
 RUN apt-get update && \
-    apt-get install -y netcat && \
-    pip install --no-cache-dir -r requirements.txt
+    apt-get install -y netcat
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
